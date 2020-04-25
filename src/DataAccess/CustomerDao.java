@@ -2,6 +2,7 @@ package DataAccess;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 import Models.Customer;
 
@@ -29,4 +30,45 @@ public class CustomerDao {
 			return false;
 		}
 	}
+	
+	public ResultSet getCustomers(String name) {
+		try {
+			System.out.print(name);                               
+			String query = "select * from Customer where NME like '%"+name+"%'";
+			PreparedStatement pstmt = con.prepareStatement(query);
+
+			ResultSet rs =  pstmt.executeQuery();
+//			while(rs.next()) {
+//				System.out.println(rs.getString("NME"));
+//			}
+			return rs;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return null;
+		}
+	}
+	
+	
+	public ResultSet getAllCustomers() {
+		try {
+			// System.out.print(name);                               
+			String query = "select * from Customer";
+			PreparedStatement pstmt = con.prepareStatement(query);
+
+			ResultSet rs =  pstmt.executeQuery();
+//			while(rs.next()) {
+//				System.out.println(rs.getString("NME"));
+//			}
+			return rs;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return null;
+		}
+	}
+	
+	
+	
+	
+	
+	
 }
