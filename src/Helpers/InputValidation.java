@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 public class InputValidation {
 	
 	public boolean validateAlphabets(String name) {
-		
+		name = name.replace(" ", "");
 		boolean allLetters = name.chars().allMatch(Character::isLetter);
 		
 		return allLetters;
