@@ -16,14 +16,74 @@ public class CustomerDao {
 
 			pstmt.setString(1, customer.getNME());
 			pstmt.setString(2, customer.getEMAIL());
-			pstmt.setInt(3, customer.getPHNE());
-			pstmt.setInt(4, customer.getACC_CRD());
+			pstmt.setLong(3, customer.getPHNE());
+			pstmt.setLong(4, customer.getACC_CRD());
 			pstmt.setInt(5, customer.getLYLTY_PNTS());
 			pstmt.setString(6, customer.getACCS_LVL());
 			pstmt.setString(7, customer.getSBSC());
 
 			pstmt.execute();
+
+			return true;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return false;
+		}
+	}
+
+	public boolean updateCustomer(int id, Customer customer) {
+		try {
 			
+			String query = "UPDATE Customer SET NME ='"+customer.getNME()+"',EMAIL ='"+customer.getEMAIL()+"',PHNE ="+customer.getPHNE()+" ,ACC_CARD ="+customer.getACC_CRD()+" ,ACCS_LVL ='"+customer.getACCS_LVL()+"' ,SBSC ='"+customer.getSBSC()+"' WHERE ID ="+id;
+			System.out.println(query);
+			PreparedStatement pstmt = con.prepareStatement(query);
+			pstmt.execute();
+
+			return true;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return false;
+		}
+	}
+
+	public ResultSet getCustomers(String name) {
+		try {
+			String query = "select * from Customer where NME like '%" + name + "%'";
+			PreparedStatement pstmt = con.prepareStatement(query);
+
+			ResultSet rs = pstmt.executeQuery();
+			return rs;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return null;
+		}
+	}
+	
+	
+	public ResultSet getLoyaltyPoints(int id) {
+		try {
+			String query = "select LYLTY_PNTS from Customer where ID = "+id;
+			PreparedStatement pstmt = con.prepareStatement(query);
+
+			ResultSet rs = pstmt.executeQuery();
+//			while(rs.next()) {
+//				System.out.println(rs.getString("LYLTY_PNTS"));
+//			}
+			return rs;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return null;
+		}
+	}
+	
+	public boolean updateLoyaltyPoints(int id) {
+		try {
+			
+			String query = "UPDATE Customer SET LYLTY_PNTS = LYLTY_PNTS + 10 WHERE ID ="+id;
+			System.out.println(query);
+			PreparedStatement pstmt = con.prepareStatement(query);
+			pstmt.execute();
+
 			return true;
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -31,16 +91,18 @@ public class CustomerDao {
 		}
 	}
 	
-	public ResultSet getCustomers(String name) {
+	public boolean redeemLoyaltyPoints(int id) {
 		try {
-			String query = "select * from Customer where NME like '%"+name+"%'";
+			
+			String query = "UPDATE Customer SET LYLTY_PNTS = LYLTY_PNTS - 100 WHERE ID ="+id;
+			System.out.println(query);
 			PreparedStatement pstmt = con.prepareStatement(query);
+			pstmt.execute();
 
-			ResultSet rs =  pstmt.executeQuery();
-			return rs;
+			return true;
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			return null;
+			return false;
 		}
-	}	
+	}
 }

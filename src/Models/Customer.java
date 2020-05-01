@@ -4,14 +4,20 @@ public class Customer {
 	
 	int ID;
 	String NME, EMAIL;
-	int PHNE, ACC_CRD, LYLTY_PNTS;
+	long PHNE, ACC_CRD;
+	int LYLTY_PNTS;
 	String ACCS_LVL, SBSC;
-		
+	
+	
+	
+	public Customer() {
+	}
+
 	public Customer(int lYLTY_PNTS) {
 		LYLTY_PNTS = lYLTY_PNTS;
 	}
 
-	public Customer(int iD, String nME, String eMAIL, int pHNE, int aCC_CRD, int lYLTY_PNTS, String aCCS_LVL,String sBSC) {
+	public Customer(int iD, String nME, String eMAIL, long pHNE, long aCC_CRD, int lYLTY_PNTS, String aCCS_LVL,String sBSC) {
 		ID = iD;
 		NME = nME;
 		EMAIL = eMAIL;
@@ -22,7 +28,7 @@ public class Customer {
 		SBSC = sBSC;
 	}
 	
-	public Customer(String nME, String eMAIL, int pHNE, int aCC_CRD, int lYLTY_PNTS, String aCCS_LVL, String sBSC) {
+	public Customer(String nME, String eMAIL, long pHNE, long aCC_CRD, int lYLTY_PNTS, String aCCS_LVL, String sBSC) {
 		NME = nME;
 		EMAIL = eMAIL;
 		PHNE = pHNE;
@@ -53,17 +59,17 @@ public class Customer {
 		EMAIL = eMAIL;
 	}
 
-	public int getPHNE() {
+	public long getPHNE() {
 		return PHNE;
 	}
-	public void setPHNE(int pHNE) {
+	public void setPHNE(long pHNE) {
 		PHNE = pHNE;
 	}
 
-	public int getACC_CRD() {
+	public long getACC_CRD() {
 		return ACC_CRD;
 	}
-	public void setACC_CRD(int aCC_CRD) {
+	public void setACC_CRD(long aCC_CRD) {
 		ACC_CRD = aCC_CRD;
 	}
 
