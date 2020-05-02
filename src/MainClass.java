@@ -6,7 +6,6 @@ public class MainClass {
 	public static void main(String[] args) {
 		
 		try {
-//			App a = new App();
 			Login l = new Login();
 		}
 		catch(Exception e) {

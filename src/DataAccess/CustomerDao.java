@@ -80,7 +80,6 @@ public class CustomerDao {
 		try {
 			
 			String query = "UPDATE Customer SET LYLTY_PNTS = LYLTY_PNTS + 10 WHERE ID ="+id;
-			System.out.println(query);
 			PreparedStatement pstmt = con.prepareStatement(query);
 			pstmt.execute();
 

@@ -7,12 +7,12 @@ import java.sql.ResultSet;
 import Models.*;
 
 public class StaffDao {
-	
+
 	Connection con = DbConnection.getInstance();
-	
+
 	public Staff login(LoginCredential credential) {
 		PreparedStatement pstmt;
-		
+
 		Staff staff = null;
 		try {
 			pstmt = con.prepareStatement("SELECT * FROM Staff where USR_NME=? and PSWD=?");
@@ -30,10 +30,25 @@ public class StaffDao {
 				staff = new Staff(ID, NME, PHNE, USR_NME, PSWD);
 			}
 			return staff;
-		}
-		catch(Exception ex) {
+		} catch (Exception ex) {
 			ex.printStackTrace();
 			return null;
+		}
+	}
+
+	public boolean register(Staff staff) {
+		PreparedStatement pstmt;
+
+		try {
+			String query = "insert into Staff (NME, PHNE, USR_NME, PSWD) values ('" + staff.getName() + "', '"
+					+ staff.getPHNE() + "', '" + staff.getUsername() + "', '" + staff.getPassword() + "')";
+			System.out.println(query);
+			pstmt = con.prepareStatement(query);
+			
+			return pstmt.execute();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return false;
 		}
 	}
 }

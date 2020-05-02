@@ -77,6 +77,25 @@ public class ProductDao {
 			ex.printStackTrace();
 			return null;
 		}
+	}
+	
+	public ResultSet getProductsCust(String name, String titleType) {
+		try {
+			String query = null;
+			if(titleType == "Music+Live Concert Videos") {
+				query = "select * from Products where TITL like '%"+name+"%' and TITL_TYPE = 'Music' or TITL_TYPE = 'Live Concert Videos'";
+			} else {
+				query = "select * from Products where TITL like '%"+name+"%' and TITL_TYPE = '"+titleType+"'";
+			}
+			
+			PreparedStatement pstmt = con.prepareStatement(query);
+
+			ResultSet rs =  pstmt.executeQuery();
+			return rs;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return null;
+		}
 	}	
 	
 	public boolean decrement(int prodID) {

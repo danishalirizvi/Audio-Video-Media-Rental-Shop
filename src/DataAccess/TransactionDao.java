@@ -40,6 +40,32 @@ public class TransactionDao {
 			return null;
 		}
 	}
+	
+	
+	public int getIssuedCount(int id) {
+		try {
+			String query = "select * from Transactions where CustomerID = " + id;
+			PreparedStatement pstmt = con.prepareStatement(query);
+			int count = 0;
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				switch(rs.getString("Status")) {
+				case("Issued"):
+					count++;
+				break;
+				}
+				
+//				if(rs.getString("Status") == "Issued") {
+//					count++;
+//					System.out.println(count);
+//				}
+			}
+			return count;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return 0; 
+		}
+	}
 
 	public boolean markReturn(int id,String returnTime) {
 		try {

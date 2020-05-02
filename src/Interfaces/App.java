@@ -5,11 +5,13 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+import javax.swing.text.DefaultEditorKit.CutAction;
 
 import DataAccess.ComboBoxData;
 import DataAccess.CustomerDao;
 import DataAccess.ProductDao;
 import DataAccess.TransactionDao;
+import Helpers.Adapter;
 import Helpers.InputValidation;
 import Models.Customer;
 import Models.Product;
@@ -131,15 +133,16 @@ public class App extends JFrame {
 
 	// Other
 	private Staff ActiveStaff;
-	private Customer customer = new Customer();
+	private Customer customer;
 
 	private InputValidation inputValidation;
+	private Adapter adapter = new Adapter();
 
 	private CustomerDao customerDao = new CustomerDao();
 	private ProductDao productDao = new ProductDao();
-	TransactionDao transactionDao = new TransactionDao();
+	private TransactionDao transactionDao = new TransactionDao();
 
-	TableModel model;
+	private TableModel model;
 
 	// Initializations
 	String[] accesslvl = { "--Select Access Level Type--", "Music Lovers", "Premium", "TV Lover", "Video Lovers" };
@@ -148,9 +151,22 @@ public class App extends JFrame {
 	int index = -1;
 
 	boolean redeemFlag = false;
-	
-	SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
+	SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	private JLabel lblCantIssue;
+	private JLabel lblLimitReached;
+	private JPanel warningPanelIssueRental;
+
+	private void abc(JTable table) {
+		table.setModel(new DefaultTableModel() {
+
+		    @Override
+		    public boolean isCellEditable(int row, int column) {
+		       return false;
+		    }
+		});
+		
+	}
 	
 	public void switchPanels(JPanel panel) {
 		layeredPane.removeAll();
@@ -161,6 +177,7 @@ public class App extends JFrame {
 
 	public void InstanciateApp(Staff staff) {
 		ActiveStaff = staff;
+		customer = new Customer();
 		inputValidation = new InputValidation();
 		setTitle("Ultra-Vision");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -202,8 +219,19 @@ public class App extends JFrame {
 						if (!customerDao.getCustomers(searchFieldHome.getText()).next()) {
 							JOptionPane.showMessageDialog(rootPane, "No User Found");
 						} else {
-							CustTableSrchCust.setModel(
-									DbUtils.resultSetToTableModel(customerDao.getCustomers(searchFieldHome.getText())));
+							
+							
+							
+//							abc(CustTableSrchCust);
+							TableModel tM = DbUtils.resultSetToTableModel(customerDao.getCustomers(searchFieldHome.getText()));
+							
+							tM.isCellEditable(1, 1);
+							CustTableSrchCust.setModel(tM);
+							
+							
+							
+							
+							
 							searchFieldHome.setText(null);
 							lblSelectedCustomerSrchCust.setVisible(false);
 							lblSelectedCustNameSrchCust.setVisible(false);
@@ -396,19 +424,19 @@ public class App extends JFrame {
 		subscriptionComboRegCust = new JComboBox(subscription);
 		subscriptionComboRegCust.setBounds(165, 220, 200, 20);
 		CustDetailsPanelRegCust.add(subscriptionComboRegCust);
-		subscriptionComboRegCust.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				customer.setSBSC(subscriptionComboRegCust.getSelectedItem().toString());
-			}
-		});
-		accesslvlComboRegCust.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				customer.setACCS_LVL(accesslvlComboRegCust.getSelectedItem().toString());
-			}
-		});
+//		subscriptionComboRegCust.addActionListener(new ActionListener() {
+//			@Override
+//			public void actionPerformed(ActionEvent arg0) {
+//				customer.setSBSC(subscriptionComboRegCust.getSelectedItem().toString());
+//			}
+//		});
+//		accesslvlComboRegCust.addActionListener(new ActionListener() {
+//
+//			@Override
+//			public void actionPerformed(ActionEvent e) {
+//				customer.setACCS_LVL(accesslvlComboRegCust.getSelectedItem().toString());
+//			}
+//		});
 
 		btnRegisterRegCust = new JButton("Register!");
 		btnRegisterRegCust.addActionListener(new ActionListener() {
@@ -431,13 +459,17 @@ public class App extends JFrame {
 					customer.setPHNE(Long.parseLong(phoneFieldRegCust.getText()));
 					customer.setACC_CRD(Long.parseLong(cardNumberFieldRegCust.getText()));
 					customer.setLYLTY_PNTS(0);
+					customer.setACCS_LVL(accesslvlComboRegCust.getSelectedItem().toString());
+					customer.setSBSC(subscriptionComboRegCust.getSelectedItem().toString());
+
 					customerDao.registerCustomer(customer);
-					
+
 					JOptionPane.showMessageDialog(rootPane, "Success");
-					customer = null;
+					customer = new Customer();
 					nameFieldRegCust.setText(null);
 					emailFieldRegCust.setText(null);
 					phoneFieldRegCust.setText(null);
+					cardNumberFieldRegCust.setText(null);
 					accesslvlComboRegCust.setSelectedIndex(0);
 					subscriptionComboRegCust.setSelectedIndex(0);
 				}
@@ -512,16 +544,18 @@ public class App extends JFrame {
 				lblSelectedCustomerSrchCust.setVisible(true);
 				lblSelectedCustNameSrchCust.setVisible(true);
 				lblSelectedCustNameSrchCust.setText(model.getValueAt(index, 1).toString());
+
+				System.out.println(model.getValueAt(index, 0).toString());
 				
 				customer.setID(Integer.parseInt(model.getValueAt(index, 0).toString()));
 				customer.setNME(model.getValueAt(index, 1).toString());
-				customer.setEMAIL(model.getValueAt(index, 2).toString());	
+				customer.setEMAIL(model.getValueAt(index, 2).toString());
 				customer.setPHNE(Long.parseLong(model.getValueAt(index, 3).toString()));
 				customer.setACC_CRD(Long.parseLong(model.getValueAt(index, 4).toString()));
 				customer.setLYLTY_PNTS(Integer.parseInt(model.getValueAt(index, 5).toString()));
 				customer.setACCS_LVL(model.getValueAt(index, 6).toString());
 				customer.setSBSC(model.getValueAt(index, 7).toString());
-				
+
 			}
 		});
 
@@ -539,16 +573,16 @@ public class App extends JFrame {
 		btnEditProfileSrchCust.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (index != -1) {
-					
+
 					nameFieldEditCust.setText(customer.getNME());
 					emailFieldEditCust.setText(customer.getEMAIL());
 					phoneFieldEditCust.setText(String.valueOf(customer.getPHNE()));
 					cardNumberFieldEditCust.setText(String.valueOf(customer.getACC_CRD()));
 					accesslvlComboEditCust.setSelectedItem(customer.getACCS_LVL());
 					subscriptionComboEditCust.setSelectedItem(customer.getSBSC());
-					
+
 					switchPanels(EditCustomer);
-					
+
 					btnEditProfileSrchCust.setText("Edit Customer");
 					btnEditProfileSrchCust.setVisible(false);
 					btnViewProfileSrchCust.setVisible(false);
@@ -564,10 +598,9 @@ public class App extends JFrame {
 		btnViewProfileSrchCust.setVisible(false);
 		btnViewProfileSrchCust.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(customer.getLYLTY_PNTS() >= 100) {
+				if (customer.getLYLTY_PNTS() >= 100) {
 					btnRedeemLoyaltyPoints.setVisible(true);
-				}
-				else {
+				} else {
 					btnRedeemLoyaltyPoints.setVisible(false);
 				}
 				lblidCustProfile.setText(String.valueOf(customer.getID()));
@@ -1250,7 +1283,7 @@ public class App extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				index = -1;
 				switchPanels(Home);
-				customer = null;
+				customer = new Customer();
 			}
 		});
 		btnGoToHomeEditCust.setBounds(554, 205, 110, 23);
@@ -1310,9 +1343,9 @@ public class App extends JFrame {
 		Profile.add(lblCustomerDetailsProfile);
 
 		btnRedeemLoyaltyPoints = new JButton("Redeem Loyalty Points");
-		
+
 		btnRedeemLoyaltyPoints.setVisible(false);
-		
+
 		btnRedeemLoyaltyPoints.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				redeemFlag = true;
@@ -1374,14 +1407,9 @@ public class App extends JFrame {
 		lblPhoneCustProfile.setFont(new Font("Times New Roman", Font.BOLD, 20));
 
 		lblDebitcreditCardCustProfile = new JLabel("");
-		lblDebitcreditCardCustProfile.setBounds(154, 151, 199, 25);
+		lblDebitcreditCardCustProfile.setBounds(154, 116, 199, 25);
 		CustDetailsPanelProfile.add(lblDebitcreditCardCustProfile);
 		lblDebitcreditCardCustProfile.setFont(new Font("Times New Roman", Font.BOLD, 20));
-
-		lblAccessLevelCustProfile = new JLabel("");
-		lblAccessLevelCustProfile.setBounds(154, 116, 199, 25);
-		CustDetailsPanelProfile.add(lblAccessLevelCustProfile);
-		lblAccessLevelCustProfile.setFont(new Font("Times New Roman", Font.BOLD, 20));
 
 		lblSubscriptionTypeCustProfile = new JLabel("");
 		lblSubscriptionTypeCustProfile.setBounds(154, 186, 199, 25);
@@ -1410,9 +1438,48 @@ public class App extends JFrame {
 		lblidCustProfile.setHorizontalAlignment(SwingConstants.CENTER);
 		lblidCustProfile.setFont(new Font("Times New Roman", Font.BOLD, 20));
 
+		lblAccessLevelCustProfile = new JLabel("");
+		lblAccessLevelCustProfile.setBounds(154, 151, 199, 25);
+		CustDetailsPanelProfile.add(lblAccessLevelCustProfile);
+		lblAccessLevelCustProfile.setFont(new Font("Times New Roman", Font.BOLD, 20));
+
 		btnIssueNewRentalProfile = new JButton("Issue New Rental");
 		btnIssueNewRentalProfile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+
+				switch (customer.getSBSC()) {
+				case ("Basic"):
+					if (transactionDao.getIssuedCount(customer.getID()) >= 2) {
+						btnIssueIssueRental.setEnabled(false);
+						warningPanelIssueRental.setVisible(true);
+					}else {
+						btnIssueIssueRental.setEnabled(true);
+						warningPanelIssueRental.setVisible(false);
+					}
+					break;
+				case ("Standard"):
+					if (transactionDao.getIssuedCount(customer.getID()) >= 4) {
+						btnIssueIssueRental.setEnabled(false);
+						warningPanelIssueRental.setVisible(true);
+					}else {
+						btnIssueIssueRental.setEnabled(true);
+						warningPanelIssueRental.setVisible(false);
+					}
+					break;
+				case ("Delux"):
+					if (transactionDao.getIssuedCount(customer.getID()) >= 8) {
+						btnIssueIssueRental.setEnabled(false);
+						warningPanelIssueRental.setVisible(true);
+					}else {
+						btnIssueIssueRental.setEnabled(true);
+						warningPanelIssueRental.setVisible(false);
+					}
+					break;
+				case ("Premium"):
+					System.out.println("Premium");
+					break;
+				}
+
 				lblCustomerNameIssueRental.setText(lblNameCustProfile.getText());
 				index = -1;
 				switchPanels(IssueRental);
@@ -1469,14 +1536,31 @@ public class App extends JFrame {
 					JOptionPane.showMessageDialog(rootPane, "Details invalid");
 				} else {
 					try {
-						if (!productDao.getProducts(searchTitleFieldIssueRental.getText()).next()) {
-							TitleTablePanelIssueRental.setVisible(false);
-							index = -1;
-							JOptionPane.showMessageDialog(rootPane, "No Record Found");
-						} else {
-							TitleTableIssueRental.setModel(DbUtils.resultSetToTableModel(
-									productDao.getProducts(searchTitleFieldIssueRental.getText())));
-							TitleTablePanelIssueRental.setVisible(true);
+						switch (customer.getACCS_LVL()) {
+						case "Premium":
+							if (!productDao.getProducts(searchTitleFieldIssueRental.getText()).next()) {
+								TitleTablePanelIssueRental.setVisible(false);
+								index = -1;
+								JOptionPane.showMessageDialog(rootPane, "No Record Found");
+							} else {
+								TitleTableIssueRental.setModel(DbUtils.resultSetToTableModel(
+										productDao.getProducts(searchTitleFieldIssueRental.getText())));
+								TitleTablePanelIssueRental.setVisible(true);
+							}
+							break;
+
+						default:
+							if (!productDao.getProductsCust(searchTitleFieldIssueRental.getText(),
+									adapter.translateAccessLvl(customer.getACCS_LVL())).next()) {
+								TitleTablePanelIssueRental.setVisible(false);
+								index = -1;
+								JOptionPane.showMessageDialog(rootPane, "No Record Found");
+							} else {
+								TitleTableIssueRental.setModel(DbUtils.resultSetToTableModel(
+										productDao.getProductsCust(searchTitleFieldIssueRental.getText(),
+												adapter.translateAccessLvl(customer.getACCS_LVL()))));
+								TitleTablePanelIssueRental.setVisible(true);
+							}
 						}
 					} catch (SQLException e1) {
 						e1.printStackTrace();
@@ -1544,7 +1628,6 @@ public class App extends JFrame {
 							"Issue " + model.getValueAt(index, 1).toString() + " to " + lblNameCustProfile.getText(),
 							"Select an Option...", JOptionPane.YES_NO_OPTION);
 					// 0=yes, 1=no, 2=cancel
-					System.out.println(input);
 					if (input == 0) {
 						Transaction t = new Transaction();
 						t.setCustomerID(Integer.parseInt(lblidCustProfile.getText()));
@@ -1559,7 +1642,7 @@ public class App extends JFrame {
 
 						ResultSet rs = customerDao.getLoyaltyPoints(customer.getID());
 						try {
-							while(rs.next()) {
+							while (rs.next()) {
 								customer.setLYLTY_PNTS(Integer.parseInt(rs.getString("LYLTY_PNTS")));
 								lblLoyaltyPointsCustProfile.setText(rs.getString("LYLTY_PNTS"));
 							}
@@ -1567,14 +1650,51 @@ public class App extends JFrame {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
-						
-						if(redeemFlag) {
+
+						if (redeemFlag) {
 							customerDao.redeemLoyaltyPoints(customer.getID());
 						}
-						
+
 						searchTitleFieldIssueRental.setText(null);
 						TitleTablePanelIssueRental.setVisible(false);
 						JOptionPane.showMessageDialog(rootPane, "Rental Issued Successfully");
+						System.out.println("Count = " + transactionDao.getIssuedCount(customer.getID()));
+
+						switch (customer.getSBSC()) {
+						case ("Basic"):
+							System.out.println("Basic");
+							if (transactionDao.getIssuedCount(customer.getID()) >= 2) {
+								btnIssueIssueRental.setEnabled(false);
+								warningPanelIssueRental.setVisible(true);
+							}else {
+								btnIssueIssueRental.setEnabled(true);
+								warningPanelIssueRental.setVisible(false);
+							}
+							break;
+						case ("Standard"):
+							System.out.println("Standard");
+							if (transactionDao.getIssuedCount(customer.getID()) >= 4) {
+								btnIssueIssueRental.setEnabled(false);
+								warningPanelIssueRental.setVisible(true);
+							}else {
+								btnIssueIssueRental.setEnabled(true);
+								warningPanelIssueRental.setVisible(false);
+							}
+							break;
+						case ("Delux"):
+							System.out.println("Delux");
+							if (transactionDao.getIssuedCount(customer.getID()) >= 8) {
+								btnIssueIssueRental.setEnabled(false);
+								warningPanelIssueRental.setVisible(true);
+							}else {
+								btnIssueIssueRental.setEnabled(true);
+								warningPanelIssueRental.setVisible(false);
+							}
+							break;
+						case ("Premium"):
+							System.out.println("Premium");
+							break;
+						}
 					}
 					lblSelectedTitleIssueRental.setVisible(false);
 					lblSelectedTitleNameIssueRental.setVisible(false);
@@ -1589,10 +1709,10 @@ public class App extends JFrame {
 		btnGoBackProfileIssueRental = new JButton("Go Back");
 		btnGoBackProfileIssueRental.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				ResultSet rs = customerDao.getLoyaltyPoints(customer.getID());
 				try {
-					while(rs.next()) {
+					while (rs.next()) {
 						System.out.println(rs.getString("LYLTY_PNTS"));
 						customer.setLYLTY_PNTS(Integer.parseInt(rs.getString("LYLTY_PNTS")));
 						lblLoyaltyPointsCustProfile.setText(rs.getString("LYLTY_PNTS"));
@@ -1601,10 +1721,9 @@ public class App extends JFrame {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				if(customer.getLYLTY_PNTS() >= 100) {
+				if (customer.getLYLTY_PNTS() >= 100) {
 					btnRedeemLoyaltyPoints.setVisible(true);
-				}
-				else {
+				} else {
 					btnRedeemLoyaltyPoints.setVisible(false);
 				}
 				searchTitleFieldIssueRental.setText(null);
@@ -1640,6 +1759,26 @@ public class App extends JFrame {
 		lblLogoCityNameIssueRental.setFont(new Font("Segoe Print", Font.PLAIN, 14));
 		lblLogoCityNameIssueRental.setBounds(177, 62, 49, 26);
 		LogoPanelIssueRental.add(lblLogoCityNameIssueRental);
+
+		warningPanelIssueRental = new JPanel();
+		warningPanelIssueRental
+				.setToolTipText("You have reached your issuing limit.\nRetun previous or upade plan to issue more.");
+		warningPanelIssueRental.setVisible(false);
+		warningPanelIssueRental.setBounds(554, 277, 110, 41);
+		IssueRental.add(warningPanelIssueRental);
+		warningPanelIssueRental.setLayout(null);
+
+		lblCantIssue = new JLabel("Can't Issue.");
+		lblCantIssue.setBounds(0, 0, 110, 20);
+		warningPanelIssueRental.add(lblCantIssue);
+		lblCantIssue.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblCantIssue.setHorizontalAlignment(SwingConstants.CENTER);
+
+		lblLimitReached = new JLabel("Limit Reached.");
+		lblLimitReached.setBounds(0, 21, 110, 20);
+		warningPanelIssueRental.add(lblLimitReached);
+		lblLimitReached.setHorizontalAlignment(SwingConstants.CENTER);
+		lblLimitReached.setFont(new Font("Tahoma", Font.BOLD, 14));
 	}
 
 	private void IssuedRentalsGUI() {
@@ -1655,10 +1794,9 @@ public class App extends JFrame {
 		btnGoBackIssuedRentals = new JButton("Go Back");
 		btnGoBackIssuedRentals.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(customer.getLYLTY_PNTS() >= 100) {
+				if (customer.getLYLTY_PNTS() >= 100) {
 					btnRedeemLoyaltyPoints.setVisible(true);
-				}
-				else {
+				} else {
 					btnRedeemLoyaltyPoints.setVisible(false);
 				}
 				index = -1;
@@ -1707,11 +1845,9 @@ public class App extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				index = RentalsTableIssuedRentals.getSelectedRow();
 				model = RentalsTableIssuedRentals.getModel();
-				System.out.println(index);
 				lblSelectedRentalIssuedRentals.setVisible(true);
 				lblSelectedRentalNameIssuedRentals.setVisible(true);
 				lblSelectedRentalNameIssuedRentals.setText(model.getValueAt(index, 0).toString());
-				System.out.println(model.getValueAt(index, 4).toString());
 			}
 		});
 		btnGoBackIssuedRentals.setBounds(554, 210, 110, 23);
@@ -1765,9 +1901,9 @@ public class App extends JFrame {
 		lblLogoCityNameIssuedRentals.setBounds(177, 62, 49, 26);
 		LogoPanelIssuedRentals.add(lblLogoCityNameIssuedRentals);
 	}
-	
+
 	public App(Staff staff) {
-		
+
 		setResizable(false);
 
 		InstanciateApp(staff);
@@ -1787,7 +1923,7 @@ public class App extends JFrame {
 		ProfileGUI();
 
 		IssueRentalGUI();
-		
+
 		IssuedRentalsGUI();
 
 		setVisible(true);

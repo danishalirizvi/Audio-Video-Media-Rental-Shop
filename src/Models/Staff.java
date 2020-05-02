@@ -3,12 +3,11 @@ public class Staff {
 	
 	int id;
 	String name;
-	int PHNE;
+	long PHNE;
 	String username;
 	String password;
 	
-	public Staff(int id, String name, int pHNE, String username, String password) {
-		super();
+	public Staff(int id, String name, long pHNE, String username, String password) {
 		this.id = id;
 		this.name = name;
 		PHNE = pHNE;
@@ -35,11 +34,11 @@ public class Staff {
 		this.name = name;
 	}
 
-	public int getPHNE() {
+	public long getPHNE() {
 		return PHNE;
 	}
 
-	public void setPHNE(int pHNE) {
+	public void setPHNE(long pHNE) {
 		PHNE = pHNE;
 	}
 
